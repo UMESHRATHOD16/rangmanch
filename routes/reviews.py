@@ -46,3 +46,44 @@ def get_avg_rating(play_name: str, session : Session = Depends(get_session)):
         "avg_rating" : round(avg_rating,2),
         "total_reviews": total_reviews
     }
+
+
+@router.get("/{review_id}",response_model=ReadReview)
+def get_review_using_id(review_id: int, session: Session = Depends(get_session)):
+    review = session.get(Review, review_id)
+    if not review:
+        raise HTTPException(status_code=404, detail="No review found of id {review_id}")
+
+    return review
+
+
+
+@router.patch("/{review_id}",response_model=ReadReview)
+def update_review(review_id: int, update: UpdateReview, session: Session = Depends(get_session)):
+    review = session.get(Review, review_id)
+    if not review:
+        raise HTTPException(status_code=404, detail="No review found of id {review_id}")
+
+    update_data = update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(review,key,value)
+
+    session.add(review)
+    session.commit()
+    session.refresh(review)
+    return review
+
+
+@router.delete("/{review_id}")
+def delete_review(review_id: int, session: Session = Depends(get_session)):
+
+    review = session.get(Review, review_id)
+    if not review:
+        raise HTTPException(status_code=404, detail="No review found of id {review_id}")
+
+    session.delete(review)
+    session.commit()
+    session.refresh(review)
+    return{
+        "message":"review deleted"
+    }

@@ -12,7 +12,7 @@ class Review(SQLModel, table = True):
 
 class CreateReview(SQLModel):
     playName: str
-    reviewerNmae: str
+    reviewerName: str
     rating: int = Field(ge=1, le=5)
     comment: str
 
