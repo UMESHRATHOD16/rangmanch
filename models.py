@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Review(SQLModel, table = True):
     id: Optional[int] = Field(default=None,primary_key=True)
@@ -8,7 +8,7 @@ class Review(SQLModel, table = True):
     reviewerName: str
     rating: int = Field(ge=1, le=5)
     comment: str
-    createdAt: datetime = Field(default_factory=datetime.now)
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CreateReview(SQLModel):
     playName: str
