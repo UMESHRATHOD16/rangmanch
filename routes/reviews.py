@@ -33,19 +33,32 @@ def list_review(
     return reviews
 
 
-@router.get("average/{play_name}")
-def get_avg_rating(play_name: str, session : Session = Depends(get_session)):
-    result = session.exec(func.avg(Review.rating), func.count(Review,id).where(Review.playName == play_name)).first()
+
+@router.get("/average/{play_name}")
+def get_avg_rating(
+    play_name: str,
+    session: Session = Depends(get_session)
+):
+    query = select(
+        func.avg(Review.rating),
+        func.count(Review.id)
+    ).where(Review.playName == play_name)
+
+    result = session.exec(query).first()
     avg_rating, total_reviews = result
 
     if total_reviews == 0:
-        raise HTTPException(status_code=404, detail=f"No reviews found for {play_name}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"No reviews found for {play_name}"
+        )
 
-    return{
-        "play_name" : play_name,
-        "avg_rating" : round(avg_rating,2),
+    return {
+        "play_name": play_name,
+        "avg_rating": round(avg_rating, 2),
         "total_reviews": total_reviews
     }
+
 
 
 @router.get("/{review_id}",response_model=ReadReview)
